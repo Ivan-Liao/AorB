@@ -1,0 +1,13 @@
+C:\Unity\WouldURather\ConsoleServer\bin\Debug\netcoreapp3.1\ConsoleServer.exe
+C:\Unity\WouldURather\ConsoleServer\bin\Debug\netcoreapp3.1\ConsoleServer.deps.json
+C:\Unity\WouldURather\ConsoleServer\bin\Debug\netcoreapp3.1\ConsoleServer.runtimeconfig.json
+C:\Unity\WouldURather\ConsoleServer\bin\Debug\netcoreapp3.1\ConsoleServer.runtimeconfig.dev.json
+C:\Unity\WouldURather\ConsoleServer\bin\Debug\netcoreapp3.1\ConsoleServer.dll
+C:\Unity\WouldURather\ConsoleServer\bin\Debug\netcoreapp3.1\ConsoleServer.pdb
+C:\Unity\WouldURather\ConsoleServer\obj\Debug\netcoreapp3.1\ConsoleServer.csprojAssemblyReference.cache
+C:\Unity\WouldURather\ConsoleServer\obj\Debug\netcoreapp3.1\ConsoleServer.AssemblyInfoInputs.cache
+C:\Unity\WouldURather\ConsoleServer\obj\Debug\netcoreapp3.1\ConsoleServer.AssemblyInfo.cs
+C:\Unity\WouldURather\ConsoleServer\obj\Debug\netcoreapp3.1\ConsoleServer.csproj.CoreCompileInputs.cache
+C:\Unity\WouldURather\ConsoleServer\obj\Debug\netcoreapp3.1\ConsoleServer.dll
+C:\Unity\WouldURather\ConsoleServer\obj\Debug\netcoreapp3.1\ConsoleServer.pdb
+C:\Unity\WouldURather\ConsoleServer\obj\Debug\netcoreapp3.1\ConsoleServer.genruntimeconfig.cache

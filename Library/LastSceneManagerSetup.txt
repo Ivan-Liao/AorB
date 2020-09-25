@@ -1,0 +1,5 @@
+sceneSetups:
+- path: Assets/Mirror/Examples/Chat/Scenes/Main.unity
+  isLoaded: 1
+  isActive: 1
+  isSubScene: 0
