@@ -16,7 +16,6 @@ public class NetworkManagerLobby : NetworkManager
 
     [Header("Game")]
     [SerializeField] private GamePlayer gamePlayerPrefab = null;
-    public int playerNo;
 
     public static event Action OnClientConnected;
     public static event Action OnClientDisconnected;
@@ -86,11 +85,6 @@ public class NetworkManagerLobby : NetworkManager
 
             networkLobbyPlayerInstance.IsLeader = isLeader;
 
-            // string playerText = 
-            // Text tempText = Instantiate(textPrefab, new Vector3 (0,0,0), Quaternion.identity);
-            // tempText.transform.parent = GameObject.Find("Canvas/Lobby Background/PlayerPanel").transform;
-
-
             NetworkServer.AddPlayerForConnection(conn, networkLobbyPlayerInstance.gameObject);
         }
     }
@@ -150,28 +144,37 @@ public class NetworkManagerLobby : NetworkManager
         base.ServerChangeScene(newSceneName);
     }
             
-    public void InfluencePhase(int pNum)    
+    public void InfluencePhase(string pName)    
     {   
-        playerNo = pNum;
         foreach (var player in GamePlayers)
         {
             if (player.currentPhase == "action")
             {
                 player.influenceBool = true;
+                player.currentPlayer = pName;
             }
         }
 
     }
 
-    public void HotseatPhase(int pNum)
+    public void HotseatPhase(string pName)
     {
-        playerNo = pNum;
         foreach (var player in GamePlayers)
         {
             if (player.currentPhase == "action")
             {
                 player.hotseatBool = true;
+                player.currentPlayer = pName;
             }
+        }
+    }
+
+    public void ResetPowerBools()
+    {
+        foreach (var player in GamePlayers)
+        {
+            player.hotseatBool = false;
+            player.influenceBool = false;
         }
     }
 

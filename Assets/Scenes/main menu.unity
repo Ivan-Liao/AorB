@@ -849,7 +849,6 @@ MonoBehaviour:
     type: 3}
   gamePlayerPrefab: {fileID: 6813687551298380444, guid: fe8867f959307114ca06d7ca1879c765,
     type: 3}
-  playerNo: 0
 --- !u!4 &1582339248
 Transform:
   m_ObjectHideFlags: 0

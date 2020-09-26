@@ -59,13 +59,6 @@ public class NetworkLobbyPlayer : NetworkBehaviour
 
     private void UpdateDisplay()
     {
-        foreach (var player in Room.LobbyPlayers)
-        {
-            if (!player.hasAuthority)
-            {
-                player.gameObject.SetActive(false);
-            }
-        }
         if (!hasAuthority)
         {
             foreach (var player in Room.LobbyPlayers)
