@@ -847,7 +847,7 @@ MonoBehaviour:
   minPlayers: 2
   networkLobbyPlayerPrefab: {fileID: 5242765026754775450, guid: 24df0fa89cef774469c27daa9b11eda5,
     type: 3}
-  gamePlayerPrefab: {fileID: 6813687551298380444, guid: fe8867f959307114ca06d7ca1879c765,
+  gamePlayerPrefab: {fileID: 3197584357814166853, guid: ee9cb3898619f1448bba6bbb6ea80ab1,
     type: 3}
 --- !u!4 &1582339248
 Transform:

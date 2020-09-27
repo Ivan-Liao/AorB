@@ -10,15 +10,15 @@ using System;
 using System.Linq;
 public class GamePlayer : NetworkBehaviour
 {
-    public static event Action<GamePlayer, int> OnRate;
+    //public static event Action<GamePlayer, int> OnRate;
 
 
     [SyncVar]
     public string displayName = "Loading...";
     [SyncVar]
-    public int rating;
-    [SyncVar]
     public double points;
+    [SyncVar]
+    public int rating;
     public Slider mySlider;
     public Text mySliderRatingText;
     public Text MySliderNameText;
@@ -57,16 +57,9 @@ public class GamePlayer : NetworkBehaviour
     // Update is called once per frame
 
     [Command]
-    public void CmdRate()
+    public void CmdRate(string pName, int rating)
     {
-        Debug.Log("cmdrate executes");
-        RpcReceiveRate(Convert.ToInt32(rating));
-    }
-
-    [ClientRpc]
-    public void RpcReceiveRate(int rating)
-    {
-        OnRate?.Invoke(this, rating);
+        Room.SyncRatings(pName, rating);
     }
 
     public void DisplayRating(int rating, Text sliderText) 
@@ -111,7 +104,7 @@ public class GamePlayer : NetworkBehaviour
     public void SliderChange(Text sliderText) 
     {
         DisplayRating(Convert.ToInt32(mySlider.value), sliderText);
-        mySlider.value = mySlider.value;
+        rating = Convert.ToInt32(mySlider.value);
     }
 }
 

@@ -143,5 +143,17 @@ public class NetworkManagerLobby : NetworkManager
         }
         base.ServerChangeScene(newSceneName);
     }
+
+    public void SyncRatings(string pName, int rating)
+    {
+        foreach (GamePlayer player in GamePlayers)
+        {
+            if (player.displayName == pName)
+            {
+                player.rating = rating;
+            }
+        }
+
+    }
 }
 
