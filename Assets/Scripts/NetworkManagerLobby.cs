@@ -143,48 +143,5 @@ public class NetworkManagerLobby : NetworkManager
         }
         base.ServerChangeScene(newSceneName);
     }
-            
-    public void InfluencePhase(string pName)    
-    {   
-        foreach (var player in GamePlayers)
-        {
-            if (player.currentPhase == "action")
-            {
-                player.influenceBool = true;
-                player.currentPlayer = pName;
-            }
-        }
-
-    }
-
-    public void HotseatPhase(string pName)
-    {
-        foreach (var player in GamePlayers)
-        {
-            if (player.currentPhase == "action")
-            {
-                player.hotseatBool = true;
-                player.currentPlayer = pName;
-            }
-        }
-    }
-
-    public void ResetPowerBools()
-    {
-        foreach (var player in GamePlayers)
-        {
-            player.hotseatBool = false;
-            player.influenceBool = false;
-        }
-    }
-
-    // void Update()
-    // {
-    //     if (Input.GetKeyDown("space"))
-    //     {
-    //         Debug.Log(LobbyPlayers.Count);
-    //         Debug.Log(GamePlayers.Count);
-    //     }
-    // }
 }
 
