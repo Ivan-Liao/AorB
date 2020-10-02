@@ -22,7 +22,10 @@ public class NetworkManagerLobby : NetworkManager
     public List<NetworkLobbyPlayer> LobbyPlayers { get; } = new List<NetworkLobbyPlayer>();
     public List<GamePlayer> GamePlayers { get; } = new List<GamePlayer>();
 
-    public override void OnStartServer() => spawnPrefabs = Resources.LoadAll<GameObject>("SpawnablePrefabs").ToList();
+    public override void OnStartServer() 
+    {
+        spawnPrefabs = Resources.LoadAll<GameObject>("SpawnablePrefabs").ToList();
+    }
 
     public override void OnStartClient() 
     {

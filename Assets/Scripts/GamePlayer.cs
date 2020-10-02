@@ -10,7 +10,7 @@ using System;
 using System.Linq;
 public class GamePlayer : NetworkBehaviour
 {
-    //public static event Action<GamePlayer, int> OnRate;
+    public static event Action<GamePlayer, string> OnPower;
 
 
     [SyncVar]
@@ -105,6 +105,18 @@ public class GamePlayer : NetworkBehaviour
     {
         DisplayRating(Convert.ToInt32(mySlider.value), sliderText);
         rating = Convert.ToInt32(mySlider.value);
+    }
+
+    [Command]
+    public void CmdSendPower(string powerType)
+    {
+        RpcSendPower(powerType);
+    }
+
+    [ClientRpc]
+    public void RpcSendPower(string powerType)
+    {
+        OnPower?.Invoke(this, powerType);
     }
 }
 

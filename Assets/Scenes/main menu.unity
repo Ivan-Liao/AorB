@@ -849,6 +849,7 @@ MonoBehaviour:
     type: 3}
   gamePlayerPrefab: {fileID: 3197584357814166853, guid: ee9cb3898619f1448bba6bbb6ea80ab1,
     type: 3}
+  randIntList: 
 --- !u!4 &1582339248
 Transform:
   m_ObjectHideFlags: 0
@@ -1302,6 +1303,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e43130f38fb7be4b989e013486e9ed6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  promptCount: 12
+  numCurrentPrompts: 5
 --- !u!4 &1870952034
 Transform:
   m_ObjectHideFlags: 0
