@@ -17,6 +17,7 @@ public class GameControl : MonoBehaviour
     public Dictionary<int, List<string>> currentPromptsDict;
     public int promptCount = 12;
     public int numCurrentPrompts = 5;
+    public bool phaseOver = false;
 
 
     // sets up singleton control object

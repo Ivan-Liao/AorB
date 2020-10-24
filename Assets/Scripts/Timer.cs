@@ -25,6 +25,7 @@ public class Timer : MonoBehaviour
             else
             {
                 // Debug.Log("Time has run out!");
+                GameControl.control.phaseOver = true;
                 timeRemaining = 0;
                 timerIsRunning = false;
             }

@@ -16,7 +16,6 @@ public class NetworkLobbyPlayer : NetworkBehaviour
     [SerializeField] private Button startGameButton = null;
     public static event Action<NetworkLobbyPlayer, List<int>> OnPromptLoad;
     public List<int> randIntList { get; } = new List<int>();
-    [SerializeField] private Text IPAddressText;
 
 
 
@@ -91,8 +90,6 @@ public class NetworkLobbyPlayer : NetworkBehaviour
             playerNameTexts[i].text = Room.LobbyPlayers[i].DisplayName;
             playerReadyTexts[i].text = Room.LobbyPlayers[i].IsReady ? "<color=green>Ready</color>" : "<color=red>Not Ready</color>";
         }
-
-        IPAddressText.text = LocalIPAddress();
     }
 
     public void HandleReadyToStart(bool readyToStart)
@@ -148,22 +145,6 @@ public class NetworkLobbyPlayer : NetworkBehaviour
     void RpcPromptLoad(List<int> randIntList)
     {
         OnPromptLoad?.Invoke(this, randIntList);
-    }
-
-    public string LocalIPAddress()
-    {
-        IPHostEntry host;
-        string localIP = "";
-        host = Dns.GetHostEntry(Dns.GetHostName());
-        foreach (IPAddress ip in host.AddressList)
-        {
-            if (ip.AddressFamily == AddressFamily.InterNetwork)
-            {
-                localIP = ip.ToString();
-                break;
-            }
-        }
-        return localIP;
     }
 }
 

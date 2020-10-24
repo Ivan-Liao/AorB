@@ -849,7 +849,6 @@ MonoBehaviour:
     type: 3}
   gamePlayerPrefab: {fileID: 3197584357814166853, guid: ee9cb3898619f1448bba6bbb6ea80ab1,
     type: 3}
-  randIntList: 
 --- !u!4 &1582339248
 Transform:
   m_ObjectHideFlags: 0

@@ -2,8 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Linq;
 using Mirror;
 using UnityEngine.UI;
@@ -36,7 +34,6 @@ public class GameUI : MonoBehaviour
     public Text promptText;
     public Text AText;
     public Text BText;
-    CancellationTokenSource tokenSource;
     List<int> currentPromptDictKeyList;
 
     private NetworkManagerLobby room;
@@ -53,58 +50,38 @@ public class GameUI : MonoBehaviour
     {
         GamePlayer.OnPower += OnPlayerPower;
     }
-    public async Task Start()
+
+    void Start()
     {
-        await Task.Delay(500);
-        // variable initializations
-        phasePrompt = 40;
+        phasePrompt = 10;
         phaseAction = 10;
         phaseInfluence = 30;
         phaseHotseat = 30;
         phaseVoteAgain = 7;
         hotseatCount = 1;
         influenceCount = 2;
-        Debug.Log("executes 6");
         currentPromptDictKeyList = GameControl.control.currentPromptsDict.Keys.ToList();
-        Debug.Log("executes 7");
         // this method sets slider parent, slider name text
         SetPlayerParent();
         // reference to local player object
         player = NetworkClient.connection.identity.GetComponent<GamePlayer>();
         // sets ui name text (bottom left)
         playerNameText.text = player.displayName;
-        await Task.Delay(100);
         round = 0;
-        // Starts the timer automatically
-        for (int i = 0; i < GameControl.control.numCurrentPrompts; i++)
-        {
-            await GameRound();  
-            round++;          
-        }
 
-        gameLogScreen.gameObject.SetActive(true);
-        gameLogText.text = "";
-        int tempCount = 0;
-        List<string> allRatingsNameList = GameControl.control.AllRatings.Keys.ToList();
-        foreach (int key in GameControl.control.currentPromptsDict.Keys.ToList())
-        {
-            gameLogText.text += "\n\n\n\n";
-            gameLogText.text += GameControl.control.currentPromptsDict[key][0];
-            gameLogText.text += "\nA - ";
-            gameLogText.text += GameControl.control.currentPromptsDict[key][1];
-            gameLogText.text += "\nB - ";
-            gameLogText.text += GameControl.control.currentPromptsDict[key][2];
-            for (int nameInt = 0; nameInt < GameControl.control.AllRatings.Count; nameInt++)
-            {
-                gameLogText.text += "\n\n";
-                gameLogText.text += allRatingsNameList[nameInt];
-                gameLogText.text += " ";
-                gameLogText.text += GameControl.control.AllRatings[allRatingsNameList[nameInt]][tempCount];
-                gameLogText.text += " ";
-                gameLogText.text += RatingToWord(GameControl.control.AllRatings[allRatingsNameList[nameInt]][tempCount]);
-            }
-            tempCount++;
-        }
+        // initial set up for first round
+        currentPhase = "prompt";
+        phaseText.text = "Phase:\nPrompt";
+        promptText.text = GameControl.control.currentPromptsDict[currentPromptDictKeyList[round]][0];
+        AText.text = GameControl.control.currentPromptsDict[currentPromptDictKeyList[round]][1];
+        BText.text = GameControl.control.currentPromptsDict[currentPromptDictKeyList[round]][2];
+        phasePrompt += (promptText.text.Length + AText.text.Length + BText.text.Length) / 400 * 15;
+        Debug.Log("phasePrompt time: " + phasePrompt);
+        hotseatCountText.text = "Hotseats: " + Convert.ToString(hotseatCount);
+        influenceCountText.text = "Influences: " + Convert.ToString(influenceCount);
+        myTimer.SetTimer(phasePrompt);
+        SetOtherPlayersInactive();
+        GameControl.control.phaseOver = false;
     }
 
     string RatingToWord(int rating)
@@ -148,37 +125,119 @@ public class GameUI : MonoBehaviour
         }
         return result;
     }
+    IEnumerator PauseCoroutinePrompt()
+    {
+        GameControl.control.phaseOver = false;
+        player.CmdRate(player.displayName, Convert.ToInt32(player.mySlider.value));
+        yield return new WaitForSeconds(0.5f);
+        UpdateRatings();
+        currentPhase = "action";
+        myTimer.SetTimer(phaseAction);
+        SetOtherPlayersActive();
+        phaseText.text = "Phase:\nPower";
+    }
+
+    IEnumerator PauseCoroutineVoteAgain()
+    {
+        GameControl.control.phaseOver = false;
+        player.CmdRate(player.displayName, Convert.ToInt32(player.mySlider.value));
+        yield return new WaitForSeconds(0.5f);
+        UpdateRatings(round);
+        currentPhase = "action";
+        myTimer.SetTimer(phaseAction);
+        SetOtherPlayersActive();
+        phaseText.text = "Phase:\nAction";
+    }
+
     void Update()
     {
 
-        if (influenceBool || hotseatBool) 
+        if (influenceBool) 
         {
-            tokenSource.Cancel();
+            phaseText.text = "Phase:\n" + currentPlayer + " is influencing";
+            currentPhase = "influence";
+            myTimer.SetTimer(phaseInfluence);
+            ResetPowerBools();
+        }
+        else if (hotseatBool)
+        {
+            phaseText.text = "Phase:\n" + currentPlayer + " is hotseating someone";;
+            currentPhase = "hotseat";
+            myTimer.SetTimer(phaseHotseat);
+            ResetPowerBools();
         }
 
-    }
+        if (GameControl.control.phaseOver == true)
+        {
+            if (currentPhase == "prompt")
+            {
+                StartCoroutine(PauseCoroutinePrompt());
+            }
+            else if (currentPhase == "action")
+            {
+                round++;
+                currentPhase = "prompt";
+                phaseText.text = "Phase:\nPrompt";
+                phasePrompt = 10;
+                promptText.text = GameControl.control.currentPromptsDict[currentPromptDictKeyList[round]][0];
+                AText.text = GameControl.control.currentPromptsDict[currentPromptDictKeyList[round]][1];
+                BText.text = GameControl.control.currentPromptsDict[currentPromptDictKeyList[round]][2];
+                phasePrompt += ((promptText.text.Length + AText.text.Length + BText.text.Length) / 400 * 15);
+                hotseatCountText.text = "Hotseats: " + Convert.ToString(hotseatCount);
+                influenceCountText.text = "Influences: " + Convert.ToString(influenceCount);
+                myTimer.SetTimer(phasePrompt);
+                SetOtherPlayersInactive();
+                GameControl.control.phaseOver = false;
+            }
+            else if  (currentPhase == "influence")
+            {
+                currentPhase = "vote again";
+                phaseText.text = "Phase:\n Change Vote";
+                myTimer.SetTimer(phaseVoteAgain);
+                GameControl.control.phaseOver = false;
+                SetOtherPlayersInactive();
+            }
+            else if (currentPhase == "hotseat")
+            {
+                currentPhase = "action";
+                myTimer.SetTimer(phaseAction);
+                SetOtherPlayersActive();
+                GameControl.control.phaseOver = false;
+                phaseText.text = "Phase:\nAction";
+            }
+            else if (currentPhase == "vote again")
+            {
+                StartCoroutine(PauseCoroutineVoteAgain());
+            }
+        }
 
-    public async Task GameRound() 
-    {
-        currentPhase = "prompt";
-        phaseText.text = "Phase:\nPrompt";
-        Debug.Log("executes 1");
-        promptText.text = GameControl.control.currentPromptsDict[currentPromptDictKeyList[round]][0];
-        Debug.Log("executes 2");
-        AText.text = GameControl.control.currentPromptsDict[currentPromptDictKeyList[round]][1];
-        Debug.Log("executes 3");
-        BText.text = GameControl.control.currentPromptsDict[currentPromptDictKeyList[round]][2];
-        Debug.Log("executes 4");
-        hotseatCountText.text = "Hotseats: " + Convert.ToString(hotseatCount);
-        influenceCountText.text = "Influences: " + Convert.ToString(influenceCount);
-        myTimer.SetTimer(phasePrompt);
-        SetOtherPlayersInactive();
-        // this is in milliseconds so must be multipied by 1000
-        await Task.Delay(phasePrompt * 1000);
-        player.CmdRate(player.displayName, Convert.ToInt32(player.mySlider.value));
-        await Task.Delay(500);
-        UpdateRatings();
-        await ActionLoop();
+        if (round > 4)
+        {
+            gameLogScreen.gameObject.SetActive(true);
+            gameLogText.text = "";
+            int tempCount = 0;
+            List<string> allRatingsNameList = GameControl.control.AllRatings.Keys.ToList();
+            foreach (int key in GameControl.control.currentPromptsDict.Keys.ToList())
+            {
+                gameLogText.text += "\n\n\n\n";
+                gameLogText.text += GameControl.control.currentPromptsDict[key][0];
+                gameLogText.text += "\nA - ";
+                gameLogText.text += GameControl.control.currentPromptsDict[key][1];
+                gameLogText.text += "\nB - ";
+                gameLogText.text += GameControl.control.currentPromptsDict[key][2];
+                for (int nameInt = 0; nameInt < GameControl.control.AllRatings.Count; nameInt++)
+                {
+                    gameLogText.text += "\n\n";
+                    gameLogText.text += allRatingsNameList[nameInt];
+                    gameLogText.text += " ";
+                    gameLogText.text += GameControl.control.AllRatings[allRatingsNameList[nameInt]][tempCount];
+                    gameLogText.text += " ";
+                    gameLogText.text += RatingToWord(GameControl.control.AllRatings[allRatingsNameList[nameInt]][tempCount]);
+                }
+                tempCount++;
+            }
+        }
+
     }
 
     void UpdateRatings()
@@ -188,6 +247,7 @@ public class GameUI : MonoBehaviour
             GameControl.control.UpdateAllRatings(player.displayName, player.rating);
         }
     }
+
     // this overload method replaces the rating for the specific round, used in vote again phase
     void UpdateRatings(int round)
     {
@@ -196,52 +256,6 @@ public class GameUI : MonoBehaviour
             GameControl.control.UpdateAllRatings(player.displayName, player.rating, round);
         }
     }
-
-    public async Task ActionLoop()
-    {
-        currentPhase = "action";
-        myTimer.SetTimer(phaseAction);
-        SetOtherPlayersActive();
-        phaseText.text = "Phase:\nPower";
-        tokenSource = new CancellationTokenSource();
-        try {
-            await Task.Delay(phaseAction * 1000, tokenSource.Token);
-        }
-        catch (TaskCanceledException) {
-            if (influenceBool) {
-                phaseText.text = "Phase:\n" + currentPlayer + " is influencing";
-                currentPhase = "influence";
-                myTimer.SetTimer(phaseInfluence);
-                await Task.Delay(phaseInfluence * 1000);
-                ResetPowerBools();
-                await VoteAgain();
-                await ActionLoop();
-            }
-            else if (hotseatBool)
-            {
-                phaseText.text = "Phase:\n" + currentPlayer + " is hotseating someone";;
-                currentPhase = "hotseat";
-                myTimer.SetTimer(phaseHotseat);
-                await Task.Delay(phaseHotseat * 1000);
-                ResetPowerBools();
-                await ActionLoop();
-            }
-            tokenSource = new CancellationTokenSource();
-        }
-    }
-    
-    public async Task VoteAgain()
-    {
-        currentPhase = "vote again";
-        phaseText.text = "Phase:\n Change Vote";
-        SetOtherPlayersInactive();
-        myTimer.SetTimer(phaseVoteAgain);
-        await Task.Delay(phaseVoteAgain * 1000);
-        player.CmdRate(player.displayName, Convert.ToInt32(player.mySlider.value));
-        await Task.Delay(500);
-        UpdateRatings(round);
-    }
-
     void SetPlayerParent()
     {
         foreach (GamePlayer player in Room.GamePlayers)
@@ -291,7 +305,7 @@ public class GameUI : MonoBehaviour
 
     public void sendPowerInfluence()
     {
-        if (influenceCount > 0 && currentPhase == "action")
+        if (influenceCount > 0 && currentPhase == "action" & myTimer.timeRemaining > 0.5)
         {
             player.CmdSendPower("influence");
             influenceCount --;
@@ -302,7 +316,7 @@ public class GameUI : MonoBehaviour
 
     public void sendPowerHotseat()
     {
-        if (hotseatCount > 0 && currentPhase == "action")
+        if (hotseatCount > 0 && currentPhase == "action" & myTimer.timeRemaining > 0.5)
         {
             player.CmdSendPower("hotseat");
             hotseatCount --;
